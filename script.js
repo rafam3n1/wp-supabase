@@ -18,7 +18,24 @@ function getUserEmail() {
       console.error('Erro ao extrair email:', e);
       return null;
     }
-  }  
+  }
+  
+
+// 2. BUSCAR ID DO USUÁRIO NA TABELA 'usuarios'
+async function buscarIdDoUsuario(email) {
+  const { data, error } = await supabase
+    .from('usuarios')
+    .select('id')
+    .eq('email', email)
+    .single();
+
+  if (error || !data) {
+    console.error('Erro ao buscar ID do usuário:', error);
+    return null;
+  }
+
+  return data.id;
+}
 
 // 3. SOMAR VALORES DE 'SAIDA' NA TABELA 'transacoes'
 async function calcularTotalSaidas(usuarioId) {
