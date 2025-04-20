@@ -11,15 +11,19 @@ function getUserEmail() {
       const el = document.getElementById('uip-app-data');
       if (!el) return null;
   
-      const raw = el.getAttribute('uip_ajax');
+      let raw = el.getAttribute('uip_ajax');
+  
+      // Corrige as barras invertidas duplicadas e faz o parse
+      raw = raw.replace(/\\\\/g, '\\'); // transforma \\ em \
       const json = JSON.parse(raw);
+  
       return json?.uipAppData?.options?.dynamicData?.useremail?.value || null;
     } catch (e) {
       console.error('Erro ao extrair email:', e);
       return null;
     }
   }
-  
+    
 
 // 2. BUSCAR ID DO USUÁRIO NA TABELA 'usuarios'
 async function buscarIdDoUsuario(email) {
