@@ -7,25 +7,18 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 // 1. PEGAR E-MAIL DO USUÁRIO (via meta tag adicionada no <head>)
 function getUserEmail() {
-  const meta = document.querySelector('meta[name="user-email"]');
-  return meta ? meta.content : null;
-}
-
-// 2. BUSCAR ID DO USUÁRIO NA TABELA 'usuarios'
-async function buscarIdDoUsuario(email) {
-  const { data, error } = await supabase
-    .from('usuarios')
-    .select('id')
-    .eq('email', email)
-    .single();
-
-  if (error || !data) {
-    console.error('Erro ao buscar ID do usuário:', error);
-    return null;
-  }
-
-  return data.id;
-}
+    try {
+      const el = document.getElementById('uip-app-data');
+      if (!el) return null;
+  
+      const raw = el.getAttribute('uip_ajax');
+      const json = JSON.parse(raw);
+      return json?.uipAppData?.options?.dynamicData?.useremail?.value || null;
+    } catch (e) {
+      console.error('Erro ao extrair email:', e);
+      return null;
+    }
+  }  
 
 // 3. SOMAR VALORES DE 'SAIDA' NA TABELA 'transacoes'
 async function calcularTotalSaidas(usuarioId) {
