@@ -6,24 +6,20 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // 1. PEGAR E-MAIL DO USUÁRIO (via meta tag adicionada no <head>)
-function getUserEmail() {
+(function getUserEmail() {
     try {
       const el = document.getElementById('uip-app-data');
       if (!el) return null;
   
       let raw = el.getAttribute('uip_ajax');
-  
-      // Corrige as barras invertidas duplicadas e faz o parse
-      raw = raw.replace(/\\\\/g, '\\'); // transforma \\ em \
-      const json = JSON.parse(raw);
-  
-      return json?.uipAppData?.options?.dynamicData?.useremail?.value || null;
+      const cleaned = raw.replace(/\\\\/g, '\\');
+      const json = JSON.parse(cleaned);
+      console.log(json?.uipAppData?.options?.dynamicData?.useremail?.value);
     } catch (e) {
       console.error('Erro ao extrair email:', e);
-      return null;
     }
-  }
-    
+  })();
+      
 
 // 2. BUSCAR ID DO USUÁRIO NA TABELA 'usuarios'
 async function buscarIdDoUsuario(email) {
