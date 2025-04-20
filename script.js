@@ -6,20 +6,28 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 // 1. PEGAR E-MAIL DO USUÁRIO (via meta tag adicionada no <head>)
-(function getUserEmail() {
-    try {
-      const el = document.getElementById('uip-app-data');
-      if (!el) return null;
-  
-      let raw = el.getAttribute('uip_ajax');
-      const cleaned = raw.replace(/\\\\/g, '\\');
-      const json = JSON.parse(cleaned);
-      console.log(json?.uipAppData?.options?.dynamicData?.useremail?.value);
-    } catch (e) {
-      console.error('Erro ao extrair email:', e);
+function getUserEmail() {
+  try {
+    const el = document.getElementById('uip-app-data');
+    if (!el) return null;
+
+    let raw = el.getAttribute('uip_ajax');
+    const cleaned = raw.replace(/\\\\/g, '\\');
+    const json = JSON.parse(cleaned);
+    const email = json?.uipAppData?.options?.dynamicData?.useremail?.value;
+
+    if (!email) {
+      console.warn('E-mail não encontrado no JSON.');
+      return null;
     }
-  })();
-      
+
+    return email;
+  } catch (e) {
+    console.error('Erro ao extrair email:', e);
+    return null;
+  }
+}
+
 
 // 2. BUSCAR ID DO USUÁRIO NA TABELA 'usuarios'
 async function buscarIdDoUsuario(email) {
@@ -57,21 +65,33 @@ async function calcularTotalSaidas(usuarioId) {
 // 4. PREENCHER ELEMENTO DO ELEMENTOR
 async function preencherTotalSaidas() {
   const email = getUserEmail();
+  console.log('📧 Email extraído:', email);
+
   if (!email) {
-    console.warn('Email do usuário não encontrado.');
+    console.warn('⚠️ Email do usuário não encontrado.');
     return;
   }
 
   const usuarioId = await buscarIdDoUsuario(email);
-  if (!usuarioId) return;
+  console.log('🆔 ID do usuário:', usuarioId);
+
+  if (!usuarioId) {
+    console.warn('⚠️ Não encontrou usuário com esse e-mail no Supabase.');
+    return;
+  }
 
   const totalSaidas = await calcularTotalSaidas(usuarioId);
+  console.log('💸 Total de saídas:', totalSaidas);
 
-  const el = document.getElementById('total-saidas');
-  if (el) {
-    el.textContent = `R$ ${totalSaidas}`;
-  }
+    const el = document.getElementById('total-saidas');
+    if (el) {
+        el.textContent = `R$ ${totalSaidas}`;
+    } else {
+        console.warn('⚠️ Elemento #total-saidas não encontrado.');
+    }
 }
+
+
 
 // INICIAR
 preencherTotalSaidas();
